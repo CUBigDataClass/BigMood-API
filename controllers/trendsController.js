@@ -25,4 +25,9 @@ router.get('/', (req, res) => {
     }
   ]);
 });
+
+router.get('/trends', (request, response) => {
+    
+  }
+);
 module.exports = router;
