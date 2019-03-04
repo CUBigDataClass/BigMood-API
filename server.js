@@ -1,6 +1,7 @@
 import redis from 'redis';
 import app from './app';
 import config from './config';
+import job from './cronGetTrends';
 
 const port = process.env.PORT || 3000;
 const client = redis.createClient({
@@ -16,3 +17,5 @@ client.on('error', err => {
 const server = app.listen(port, function() {
   console.log('Express server listening on port ' + port);
 });
+
+job.start();
