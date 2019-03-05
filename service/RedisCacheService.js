@@ -1,4 +1,4 @@
-import RedisClient from '../clients/RedisClient.js';
+import RedisClient from '../clients/RedisClient';
 
 const TRENDS_TOPIC_KEY = 'trendingtopics';
 

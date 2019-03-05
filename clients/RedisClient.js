@@ -1,5 +1,5 @@
 import redis from 'redis';
-import redisConfig from '../config/redisConfig.js';
+import redisConfig from '../config/RedisConfig';
 
 //console.log(redisConfig.port,redisConfig.hostname,redisConfig.redisPassword)
 const redisExpirationTime = redisConfig.expiration_time;

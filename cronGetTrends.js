@@ -1,5 +1,5 @@
 import cron from 'cron';
-import twitterClient from './twitterClient';
+import twitterClient from './clients/twitterClient';
 
 const CronJob = cron.CronJob;
 const job = new CronJob('0 */30 * * * *', () => {

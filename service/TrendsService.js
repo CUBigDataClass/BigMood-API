@@ -1,7 +1,7 @@
-import serverConfig from '../config/serverConfig.js';
+import serverConfig from '../config/ServerConfig';
 import Request from 'request';
 
-import RedisCacheService from './RedisCacheService.js';
+import RedisCacheService from './RedisCacheService';
 
 const requestHeader = {
   url:

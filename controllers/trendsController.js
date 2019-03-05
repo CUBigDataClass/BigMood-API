@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 
-import TrendsService from '../service/TrendsService.js';
+import TrendsService from '../service/TrendsService';
 
 const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: true }));
