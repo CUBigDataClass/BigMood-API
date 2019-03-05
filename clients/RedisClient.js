@@ -2,7 +2,7 @@ import redis from 'redis';
 import redisConfig from '../config/redisConfig.js';
 
 //console.log(redisConfig.port,redisConfig.hostname,redisConfig.redisPassword)
-const redisExpirationTime = redicConfig.expiration_time;
+const redisExpirationTime = redisConfig.expiration_time;
 
 var client = redis.createClient({
   port: redisConfig.port,
