@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 
-import trendsService from './service/TrendsServide.js'
+import TrendsService from '../service/TrendsService.js';
 
 const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: true }));
@@ -29,13 +29,12 @@ router.get('/', (req, res) => {
 });
 
 router.get('/trends', (request, response) => {
-  try{
-    trendsService.getTrends(request,response);
-  }
-  catch{error}{
-    console.log("Error calling trends service: " +error)
+  try {
+    console.log(TrendsService);
+    TrendsService.getTrends(request, response);
+  } catch (error) {
+    console.log('Error calling trends service: ' + error);
     response.status(500).send();
   }
-  }
-);
+});
 module.exports = router;
