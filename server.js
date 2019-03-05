@@ -1,9 +1,5 @@
 import app from './app';
-<<<<<<< HEAD
-=======
-import config from './config';
 import job from './cronGetTrends';
->>>>>>> master
 
 const port = process.env.PORT || 3000;
 
