@@ -25,5 +25,8 @@
     "express": "^4.16.4",
     "redis": "^2.8.0",
     "twitter": "^1.7.1"
+  },
+  "devDependencies": {
+    "babel-preset-stage-3": "^6.24.1"
   }
 }
