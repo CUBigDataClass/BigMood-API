@@ -3,9 +3,9 @@ import twitterClient from './clients/twitterClient';
 import util from 'util';
 
 const CronJob = cron.CronJob;
-const job = new CronJob('0 * * * * *', () => {
+const job = new CronJob('0 */30 * * * *', () => {
   getCountryWoeids.then(result => {
-    getTrendsByCountry(result.slice(1, 10));
+    getTrendsByCountry(result);
   });
 });
 
@@ -45,8 +45,8 @@ const getTrendsByCountry = countryWoeids => {
         .catch(error => console.log(error))
     )
   ).then(data => {
-     // POST the data
-    console.log(util.inspect(data, false, null, true /* enable colors */))
+    // POST the data
+    console.log(util.inspect(data, false, null, true /* enable colors */));
   });
 };
 
@@ -54,7 +54,16 @@ const getTrendingHashTag = (trends, numOfTrends, countryWoeid) => {
   let filteredTrends = trends.filter(trend => trend.tweet_volume != null);
   filteredTrends.sort((a, b) => b.tweet_volume - a.tweet_volume);
   filteredTrends = filteredTrends.slice(0, numOfTrends);
-  let mergedObj = { ...countryWoeid, trends: filteredTrends };
+  filteredTrends = filteredTrends.map(item => {
+    const newObj = {
+      name: item.name,
+      tweetVolume: item.tweet_volume,
+      url: item.url
+    }
+    return newObj
+  })
+  const mergedObj = { ...countryWoeid, trends: filteredTrends };
   return mergedObj;
 };
+
 module.exports = job;
