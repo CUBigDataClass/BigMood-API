@@ -1,5 +1,5 @@
 import Twitter from 'twitter';
-import config from './config';
+import config from '../config';
 
 const twitterClient = new Twitter({
   consumer_key: config.consumerKey,
