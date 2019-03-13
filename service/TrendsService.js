@@ -15,7 +15,7 @@ const requestHeader = {
   }
 };
 
-getTrendingTopics = () => {
+const getTrendingTopics = () => {
   return new Promise(function(resolve, reject) {
     Request.get(requestHeader, (error, response, body) => {
       if (error) {
@@ -33,7 +33,7 @@ getTrendingTopics = () => {
 Assuming that redis stores the recent trends as a list 
 */
 
-getTrends = (request, response) => {
+const getTrends = (request, response) => {
   //look into the cache. If available then returns,
   //otherwise calls the getTrendingTopics, return result and then cache it.
   console.log('Inside trends service');
