@@ -15,7 +15,7 @@ const requestHeader = {
   }
 };
 
-function getTrendingTopics() {
+getTrendingTopics = () => {
   return new Promise(function(resolve, reject) {
     Request.get(requestHeader, (error, response, body) => {
       if (error) {
@@ -33,12 +33,13 @@ function getTrendingTopics() {
 Assuming that redis stores the recent trends as a list 
 */
 
-function getTrends(request, response) {
+getTrends = (request, response) => {
   //look into the cache. If available then returns,
   //otherwise calls the getTrendingTopics, return result and then cache it.
   console.log('Inside trends service');
   RedisCacheService.getTrendingTopicsFromRedis().then(
     redisResponse => {
+      response.setHeader("Content-Type", "application/json")
       response.status(200).send(redisResponse);
     },
     redisGetFailure => {
@@ -46,13 +47,11 @@ function getTrends(request, response) {
       getTrendingTopics().then(
         serviceResponse => {
           const jsonObj = JSON.parse(serviceResponse.body);
-          console.log('Got a response from python service: ' + serviceResponse);
+          console.log('Got a response from python service: ' );
           response.status(200).send(jsonObj);
           RedisCacheService.cacheTrendsInRedis(JSON.stringify(jsonObj)).then(
             redisResponse => {
-              console.log(
-                'Cached successfully in redis. Response' + redisResponse
-              );
+              console.log('Cached successfully in redis. Response');
             },
             redisPutFailure => {
               console.log('Failed to put in redis.:' + redisPutFailure);

@@ -2,7 +2,7 @@ import RedisClient from '../clients/RedisClient';
 
 const TRENDS_TOPIC_KEY = 'trendingtopics';
 
-function getTrendingTopicsFromRedis() {
+getTrendingTopicsFromRedis = () =>{
   console.log('RedisCacheService: getTrendingTopicsFromRedis');
   return new Promise((resolve, reject) => {
     try {
@@ -30,7 +30,7 @@ function getTrendingTopicsFromRedis() {
   });
 }
 
-function cacheTrendsInRedis(topic) {
+cacheTrendsInRedis = (topic) =>{
   return new Promise((resolve, reject) => {
     try {
       RedisClient.client.set(
