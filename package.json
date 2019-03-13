@@ -26,5 +26,8 @@
     "redis": "^2.8.0",
     "request": "^2.88.0",
     "twitter": "^1.7.1"
+  },
+  "devDependencies": {
+    "babel-preset-stage-3": "^6.24.1"
   }
 }
