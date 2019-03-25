@@ -11,7 +11,7 @@ const requestHeader = {
 
 const CronJob = cron.CronJob;
 
-const job = new CronJob('0 * * * * *', () => {
+const job = new CronJob('0 */30 * * * *', () => {
   getCountryWoeids.then(result => {
     getTrendsByCountry(result);
   });

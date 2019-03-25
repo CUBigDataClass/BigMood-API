@@ -22,7 +22,6 @@ const getTrendingTopics = () => {
         console.debug('Failed to get response from python service: ' + error);
         reject(error);
       } else {
-        console.debug(response);
         resolve(response);
       }
     });
@@ -34,8 +33,8 @@ Assuming that redis stores the recent trends as a list
 */
 
 const getTrends = (request, response) => {
-  //look into the cache. If available then returns,
-  //otherwise calls the getTrendingTopics, return result and then cache it.
+  // Look into the cache. If available then returns,
+  // Otherwise calls the getTrendingTopics, return result and then cache it.
   console.log('Inside trends service');
   RedisCacheService.getTrendingTopicsFromRedis().then(
     redisResponse => {
