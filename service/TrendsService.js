@@ -16,7 +16,7 @@ const requestHeader = {
 };
 
 const getTrendingTopics = () => {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     Request.get(requestHeader, (error, response, body) => {
       if (error) {
         console.debug('Failed to get response from python service: ' + error);
