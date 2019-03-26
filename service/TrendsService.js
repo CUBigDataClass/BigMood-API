@@ -18,7 +18,6 @@ const requestHeader = {
     endDate: ''
   }
 };
-
 const getTrendingTopics = (start, end) => {
   return new Promise((resolve, reject) => {
     requestHeader.qs.startDate = start;
@@ -39,8 +38,8 @@ Assuming that redis stores the recent trends as a list
 */
 
 const getTrends = (request, response, cacheKey, st, end) => {
-  //look into the cache. If available then returns,
-  //otherwise calls the getTrendingTopics, return result and then cache it.
+  // Look into the cache. If available then returns,
+  // Otherwise calls the getTrendingTopics, return result and then cache it.
   console.log('Trends service : ' + cacheKey, st, end);
   RedisCacheService.getTrendingTopicsFromRedis(cacheKey).then(
     redisResponse => {

@@ -1,10 +1,19 @@
 import cron from 'cron';
 import twitterClient from './clients/twitterClient';
 import util from 'util';
+import request from 'request';
+import serverConfig from './config/ServerConfig';
 
 const CronJob = cron.CronJob;
+const locationType = {
+  1: 'Country',
+  2: 'City'
+};
+
 const job = new CronJob('0 */30 * * * *', () => {
   getCountryWoeids.then(result => {
+    // TO DO: Rate Limiting
+    console.log('Getting trending hashtags country and city wise');
     getTrendsByCountry(result);
   });
 });
@@ -20,7 +29,8 @@ const getCountryWoeids = new Promise((resolve, reject) => {
       const newObj = {
         country: loc.country,
         woeid: loc.parentid,
-        countryCode: loc.countryCode
+        countryCode: loc.countryCode,
+        locationType: locationType[1] // Country
       };
       return newObj;
     });
@@ -32,7 +42,19 @@ const getCountryWoeids = new Promise((resolve, reject) => {
         uniqueWoeids[element.woeid] = true;
       }
     });
-    resolve(distinctCountries);
+    const availableCities = availableWoeids.map(loc => {
+      const newObj = {
+        country: loc.country,
+        woeid: loc.woeid,
+        city: loc.name,
+        countryCode: loc.countryCode,
+        locationType: locationType[2] // City
+      };
+      return newObj;
+    });
+    let places = [];
+    places = availableCities.concat(distinctCountries);
+    resolve(places);
   });
 });
 
@@ -45,7 +67,17 @@ const getTrendsByCountry = countryWoeids => {
         .catch(error => console.log(error))
     )
   ).then(data => {
-    // POST the data
+    // POST the data to sentiment analyser
+    const options = {
+      uri: 'http://' + serverConfig.hostname + serverConfig.endpoint,
+      json: { trends: data },
+      method: 'POST'
+    };
+    request(options, (err, res, body) => {
+      if (err) {
+        console.log(err);
+      }
+    });
     console.log(util.inspect(data, false, null, true /* enable colors */));
   });
 };
@@ -58,12 +90,12 @@ const getTrendingHashTag = (trends, numOfTrends, countryWoeid) => {
     const newObj = {
       name: item.name,
       tweetVolume: item.tweet_volume,
-      url: item.url
-    }
-    return newObj
-  })
-  const mergedObj = { ...countryWoeid, trends: filteredTrends };
+      rank: null
+    };
+    return newObj;
+  });
+  filteredTrends.forEach((item, index) => (item['rank'] = index + 1));
+  const mergedObj = { ...countryWoeid, twitterTrendInfo: filteredTrends };
   return mergedObj;
 };
-
 module.exports = job;
