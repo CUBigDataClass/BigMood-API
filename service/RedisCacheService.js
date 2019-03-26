@@ -6,7 +6,7 @@ const getTrendingTopicsFromRedis = cacheKey => {
     try {
       console.log('CALLING : RedisClient.client.get');
       RedisClient.client.get(cacheKey, function(error, result) {
-        if (error || result == null) {
+        if (error || !result ) {
           console.log(
             'Failed to get result from redis Error: ' +
               error +

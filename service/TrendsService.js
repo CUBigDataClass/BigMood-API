@@ -20,7 +20,7 @@ const requestHeader = {
 };
 
 const getTrendingTopics = (start, end) => {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     requestHeader.qs.startDate = start;
     requestHeader.qs.endDate = end;
     Request.get(requestHeader, (error, response, body) => {
