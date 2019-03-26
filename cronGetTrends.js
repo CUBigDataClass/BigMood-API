@@ -4,16 +4,12 @@ import util from 'util';
 import request from 'request';
 import serverConfig from './config/ServerConfig';
 
-const requestHeader = {
-  url:
-    'http://' + serverConfig.hostname + ':' + serverConfig.port + serverConfig.endpoint,
-};
-
 const CronJob = cron.CronJob;
 
 const job = new CronJob('0 */30 * * * *', () => {
   getCountryWoeids.then(result => {
-    getTrendsByCountry(result);
+    // TO DO: Rate Limiting
+    getTrendsByCountry(result.slice);
   });
 });
 
@@ -67,7 +63,12 @@ const getTrendsByCountry = countryWoeids => {
     )
   ).then(data => {
     // POST the data to sentiment analyser
-    request.post(requestHeader, data, (err, res, body) => {
+    const options = {
+      uri: 'http://' + serverConfig.hostname + serverConfig.endpoint,
+      json: { trends: data },
+      method: 'POST'
+    };
+    request(options, (err, res, body) => {
       if (err) {
         console.log(err);
       }
@@ -82,16 +83,14 @@ const getTrendingHashTag = (trends, numOfTrends, countryWoeid) => {
   filteredTrends = filteredTrends.slice(0, numOfTrends);
   filteredTrends = filteredTrends.map(item => {
     const newObj = {
-      trend: item.name,
+      name: item.name,
       tweetVolume: item.tweet_volume,
-      // url: item.url,
       rank: null
     };
     return newObj;
   });
   filteredTrends.forEach((item, index) => (item['rank'] = index + 1));
   const mergedObj = { ...countryWoeid, twitterTrendInfo: filteredTrends };
-  filteredTrends = mergedObj.filter(item => item != null || item != undefined);
   return mergedObj;
 };
 module.exports = job;
