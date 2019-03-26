@@ -34,13 +34,14 @@ router.get('/trends', (request, response) => {
           .format(fmt)
       );
     } else {
-      if (validateRequest(start, end)) {
-        const REDIS_KEY = TRENDS_TOPIC_KEY + start + '-' + end;
-        TrendsService.getTrends(request, response, REDIS_KEY, start, end);
-      } else {
+      if (start === undefined || end === undefined) {
         response
           .status(400)
           .send('Invalid request, must provide a start and endtime');
+      } else {
+        //TODO : Check cache logic here
+        const REDIS_KEY = TRENDS_TOPIC_KEY + start + '-' + end;
+        TrendsService.getTrends(request, response, REDIS_KEY, start, end);
       }
     }
   } catch (error) {
@@ -49,10 +50,4 @@ router.get('/trends', (request, response) => {
   }
 });
 
-const validateRequest = (start, end) => {
-  if (start === undefined || end === undefined) {
-    return false;
-  }
-  return true;
-};
 module.exports = router;
