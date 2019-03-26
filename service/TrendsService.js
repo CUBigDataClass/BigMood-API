@@ -23,8 +23,6 @@ const getTrendingTopics = (start, end) => {
   return new Promise(function(resolve, reject) {
     requestHeader.qs.startDate = start;
     requestHeader.qs.endDate = end;
-    console.log('Request header: ' + requestHeader.qs.endDate);
-    console.log('Request header: ' + requestHeader.qs.startDate);
     Request.get(requestHeader, (error, response, body) => {
       if (error) {
         console.debug('Failed to get response from python service: ' + error);
@@ -43,7 +41,7 @@ Assuming that redis stores the recent trends as a list
 const getTrends = (request, response, cacheKey, st, end) => {
   //look into the cache. If available then returns,
   //otherwise calls the getTrendingTopics, return result and then cache it.
-  console.log('Trends service :' + cacheKey, st, end);
+  console.log('Trends service : ' + cacheKey, st, end);
   RedisCacheService.getTrendingTopicsFromRedis(cacheKey).then(
     redisResponse => {
       response.setHeader('Content-Type', 'application/json');
@@ -66,7 +64,6 @@ const getTrends = (request, response, cacheKey, st, end) => {
             redisPutFailure => {
               console.log('Failed to put in redis.:' + redisPutFailure);
               // No need to send anything to client. just log it.
-              //response.status(500).send()
             }
           );
         },

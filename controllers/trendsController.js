@@ -13,34 +13,11 @@ const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
-// GET all trends
-router.get('/', (req, res) => {
-  res.status(200).send([
-    {
-      hashtag: '#FelizMiercoles',
-      tweet_volume: 36103,
-      sentiment: 'neutral'
-    },
-    {
-      hashtag: '#wednesdaywisdom',
-      tweet_volume: 42916,
-      sentiment: 'happy'
-    },
-    {
-      hashtag: 'Tara Palmer-Tomkinson',
-      tweet_volume: null,
-      sentiment: 'sad'
-    }
-  ]);
-});
-
 router.get('/trends', (request, response) => {
   try {
     console.log('Trends controller');
     const start = request.query.startDate;
     const end = request.query.endDate;
-    console.log(start);
-    console.log(end);
     if (start === undefined && end === undefined) {
       TrendsService.getTrends(
         request,
@@ -49,9 +26,11 @@ router.get('/trends', (request, response) => {
         moment()
           .utc()
           .subtract(1, 'days')
+          .seconds(0)
           .format(fmt),
         moment()
           .utc()
+          .seconds(0)
           .format(fmt)
       );
     } else {
