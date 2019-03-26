@@ -1,14 +1,12 @@
 import RedisClient from '../clients/RedisClient';
 
-const TRENDS_TOPIC_KEY = 'trendingtopics';
-
-const getTrendingTopicsFromRedis = () =>{
+const getTrendingTopicsFromRedis = cacheKey => {
   console.log('RedisCacheService: getTrendingTopicsFromRedis');
   return new Promise((resolve, reject) => {
     try {
       console.log('CALLING : RedisClient.client.get');
-      RedisClient.client.get(TRENDS_TOPIC_KEY, function(error, result) {
-        if (error || result == null) {
+      RedisClient.client.get(cacheKey, function(error, result) {
+        if (error || !result ) {
           console.log(
             'Failed to get result from redis Error: ' +
               error +
@@ -28,13 +26,13 @@ const getTrendingTopicsFromRedis = () =>{
       );
     }
   });
-}
+};
 
-const cacheTrendsInRedis = (topic) =>{
+const cacheTrendsInRedis = (cacheKey, topic) => {
   return new Promise((resolve, reject) => {
     try {
       RedisClient.client.set(
-        TRENDS_TOPIC_KEY,
+        cacheKey,
         topic,
         'EX',
         RedisClient.cacheExpiration,
@@ -50,6 +48,6 @@ const cacheTrendsInRedis = (topic) =>{
       console.debug('some error happened: ' + error);
     }
   });
-}
+};
 
 module.exports = { cacheTrendsInRedis, getTrendingTopicsFromRedis };
