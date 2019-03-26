@@ -5,11 +5,16 @@ import request from 'request';
 import serverConfig from './config/ServerConfig';
 
 const CronJob = cron.CronJob;
+const locationType = {
+  1: 'Country',
+  2: 'City'
+};
 
 const job = new CronJob('0 */30 * * * *', () => {
   getCountryWoeids.then(result => {
     // TO DO: Rate Limiting
-    getTrendsByCountry(result.slice);
+    console.log('Getting trending hashtags country and city wise');
+    getTrendsByCountry(result);
   });
 });
 
@@ -25,7 +30,7 @@ const getCountryWoeids = new Promise((resolve, reject) => {
         country: loc.country,
         woeid: loc.parentid,
         countryCode: loc.countryCode,
-        locationType: 'Country'
+        locationType: locationType[1] // Country
       };
       return newObj;
     });
@@ -43,7 +48,7 @@ const getCountryWoeids = new Promise((resolve, reject) => {
         woeid: loc.woeid,
         city: loc.name,
         countryCode: loc.countryCode,
-        locationType: 'City'
+        locationType: locationType[2] // City
       };
       return newObj;
     });
