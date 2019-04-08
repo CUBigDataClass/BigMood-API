@@ -10,41 +10,26 @@ const locationType = {
   2: 'City'
 };
 
-// Run this Cron Job every 2 hours
-const job = new CronJob('* 0/5 * * * *', () => {
+// Initialize queue with trending locations on server start
+let queue  = []
+
+
+// Run this Cron Job every 3 hours to get trending locations and update trends
+const getTrendingLocationsJob = new CronJob('* * 0/3 * * *', () => {
   getCountryWoeids.then(result => {
-    result = result.slice(1, 70)
-    console.log('Getting trending hashtags country and city wise');
-    let i,
-      j,
-      temparray,
-      jobs = [],
-      chunk = 15,
-      time = 0,
-      cronString = '';
-    for (i = 0, j = result.length; i < j; i += chunk) {
-      temparray = result.slice(i, i + chunk);
-      // Run this every 15 minutes
-      time += 1
-      if (time <= 60) {
-        cronString = '* ' + String(time) + ' * * * *';
-      } else {
-        cronString = '* ' + String(time % 60) + ' ' + String(time / 60) + '* * *';
-      }
-      jobs.push(
-        new CronJob(cronString, () => {
-          // getTrendsByCountry(temparray);
-          console.log('Printing time in minutes: ' + String(time))
-          console.log(temparray);
-        })
-      );
-    }
-    // console.log(jobs)
-    jobs.forEach(job => {
-      job.start();
-    });
-    // getTrendsByCountry(result);
+    console.log('Getting trending hashtags country and city wise', result.length);
+    queue = Array.from(result);
   });
+});
+
+
+// Rate limiting : Job to run every 15 minutes making requests to trends api
+const getTrendsJob = new CronJob('* 0/15 * * * *', () => {
+  let trendingLocations = queue.splice(0, 75);
+  if (trendingLocations) {
+    getTrendsByCountry(trendingLocations);
+    console.log("Executing", trendingLocations.length, queue.length);
+  }
 });
 
 // Returns object with this format [{ country: 'United States', woeid: 23424977, countryCode: 'US' }]
@@ -127,4 +112,5 @@ const getTrendingHashTag = (trends, numOfTrends, countryWoeid) => {
   const mergedObj = { ...countryWoeid, twitterTrendInfo: filteredTrends };
   return mergedObj;
 };
-module.exports = job;
+
+module.exports = {getTrendsJob, getTrendingLocationsJob};
