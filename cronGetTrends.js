@@ -10,12 +10,26 @@ const locationType = {
   2: 'City'
 };
 
-const job = new CronJob('0 */30 * * * *', () => {
+// Initialize queue with trending locations on server start
+let queue  = []
+
+
+// Run this Cron Job every 3 hours to get trending locations and update trends
+const getTrendingLocationsJob = new CronJob('* * 0/3 * * *', () => {
   getCountryWoeids.then(result => {
-    // TO DO: Rate Limiting
-    console.log('Getting trending hashtags country and city wise');
-    getTrendsByCountry(result);
+    console.log('Getting trending hashtags country and city wise', result.length);
+    queue = Array.from(result);
   });
+});
+
+
+// Rate limiting : Job to run every 15 minutes making requests to trends api
+const getTrendsJob = new CronJob('* 0/15 * * * *', () => {
+  let trendingLocations = queue.splice(0, 75);
+  if (trendingLocations) {
+    getTrendsByCountry(trendingLocations);
+    console.log("Executing", trendingLocations.length, queue.length);
+  }
 });
 
 // Returns object with this format [{ country: 'United States', woeid: 23424977, countryCode: 'US' }]
@@ -98,4 +112,5 @@ const getTrendingHashTag = (trends, numOfTrends, countryWoeid) => {
   const mergedObj = { ...countryWoeid, twitterTrendInfo: filteredTrends };
   return mergedObj;
 };
-module.exports = job;
+
+module.exports = {getTrendsJob, getTrendingLocationsJob};
