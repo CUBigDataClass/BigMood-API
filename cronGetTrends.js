@@ -10,11 +10,40 @@ const locationType = {
   2: 'City'
 };
 
-const job = new CronJob('0 */30 * * * *', () => {
+// Run this Cron Job every 2 hours
+const job = new CronJob('* 0/5 * * * *', () => {
   getCountryWoeids.then(result => {
-    // TO DO: Rate Limiting
+    result = result.slice(1, 70)
     console.log('Getting trending hashtags country and city wise');
-    getTrendsByCountry(result);
+    let i,
+      j,
+      temparray,
+      jobs = [],
+      chunk = 15,
+      time = 0,
+      cronString = '';
+    for (i = 0, j = result.length; i < j; i += chunk) {
+      temparray = result.slice(i, i + chunk);
+      // Run this every 15 minutes
+      time += 1
+      if (time <= 60) {
+        cronString = '* ' + String(time) + ' * * * *';
+      } else {
+        cronString = '* ' + String(time % 60) + ' ' + String(time / 60) + '* * *';
+      }
+      jobs.push(
+        new CronJob(cronString, () => {
+          // getTrendsByCountry(temparray);
+          console.log('Printing time in minutes: ' + String(time))
+          console.log(temparray);
+        })
+      );
+    }
+    // console.log(jobs)
+    jobs.forEach(job => {
+      job.start();
+    });
+    // getTrendsByCountry(result);
   });
 });
 
