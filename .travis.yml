@@ -1,0 +1,15 @@
+sudo: false
+
+#use node_js environment
+language: node_js
+cache:
+  directories:
+    - "node_modules"
+node_js:
+  - "8"
+
+install:
+  - npm install
+
+script:
+  - echo "skip tests"
