@@ -23,7 +23,7 @@ gcloud auth configure-docker
 docker run -p 3000:3000 gcr.io/supple-bank-232805/big-data-node-api  
 This should start the node js server locally and Redis client should be connected.  
 7. Create a container cluster using the gcloud.  
-gcloud container clusters create big-data-node-api-cluster  
+gcloud container clusters create big-data-node-api-cluster --num-nodes 1  
 8. Run the Docker container images on the above cluster.  
 kubectl run big-data-node-api-cluster --image gcr.io/supple-bank-232805/big-data-node-api --port 3000  
 9. Put the cluster in front of a load balancer and set up the ports.  
