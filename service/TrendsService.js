@@ -51,7 +51,7 @@ const getTrends = (request, response, cacheKey, st, end) => {
       getTrendingTopics(st, end).then(
         serviceResponse => {
           const jsonObj = JSON.parse(serviceResponse.body);
-          console.log('Got a response from python service: ');
+          console.log('Got a response from python service: ' + JSON.stringify(jsonObj));
           response.status(200).send(jsonObj);
           RedisCacheService.cacheTrendsInRedis(
             cacheKey,
