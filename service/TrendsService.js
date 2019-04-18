@@ -1,5 +1,6 @@
 import serverConfig from '../config/ServerConfig';
 import Request from 'request';
+import { app, logger } from '../app';
 
 import RedisCacheService from './RedisCacheService';
 
@@ -19,6 +20,9 @@ const requestHeader = {
   }
 };
 const getTrendingTopics = (start, end) => {
+  console.log('Hello Logstash - Get trending topics');
+  console.log(app.logger);
+  logger.send('Hello Logstash - Get trending topics');
   return new Promise((resolve, reject) => {
     requestHeader.qs.startDate = start;
     requestHeader.qs.endDate = end;
@@ -51,7 +55,9 @@ const getTrends = (request, response, cacheKey, st, end) => {
       getTrendingTopics(st, end).then(
         serviceResponse => {
           const jsonObj = JSON.parse(serviceResponse.body);
-          console.log('Got a response from python service: ' + JSON.stringify(jsonObj));
+          console.log(
+            'Got a response from python service: ' + JSON.stringify(jsonObj)
+          );
           response.status(200).send(jsonObj);
           RedisCacheService.cacheTrendsInRedis(
             cacheKey,

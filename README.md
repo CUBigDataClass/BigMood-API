@@ -26,9 +26,12 @@ This should start the node js server locally and Redis client should be connecte
 gcloud container clusters create big-data-node-api-cluster --num-nodes 1  
 8. Run the Docker container images on the above cluster.  
 kubectl run big-data-node-api-cluster --image gcr.io/supple-bank-232805/big-data-node-api --port 3000  
-9. Put the cluster in front of a load balancer and set up the ports.  
+9. Put the cluster in front of a load balancer and expose it to the internet and set up the ports.  
 kubectl expose deployment big-data-node-api-cluster --type LoadBalancer --port 3000 --target-port 3000  
 
 10. Run the 'kubectl get service' command to get the status of your deployment.  
 Wait till the external IP address populates. Now use the external IP address with the port information to check the status of your service.  
 Example: 104.198.251.99:3000/bigmoodapi/trends/ . 
+
+11. Redeploying a new version.  
+
