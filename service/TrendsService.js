@@ -1,7 +1,6 @@
 import serverConfig from '../config/ServerConfig';
 import Request from 'request';
-import { app, logger } from '../app';
-
+import { logger } from './LoggerService';
 import RedisCacheService from './RedisCacheService';
 
 const requestHeader = {
@@ -20,15 +19,13 @@ const requestHeader = {
   }
 };
 const getTrendingTopics = (start, end) => {
-  console.log('Hello Logstash - Get trending topics');
-  console.log(app.logger);
-  logger.send('Hello Logstash - Get trending topics');
+  logger.info('Get trending topics');
   return new Promise((resolve, reject) => {
     requestHeader.qs.startDate = start;
     requestHeader.qs.endDate = end;
     Request.get(requestHeader, (error, response, body) => {
       if (error) {
-        console.debug('Failed to get response from python service: ' + error);
+        logger.error('Failed to get response from python service: ' + error);
         reject(error);
       } else {
         resolve(response);
@@ -44,18 +41,18 @@ Assuming that redis stores the recent trends as a list
 const getTrends = (request, response, cacheKey, st, end) => {
   // Look into the cache. If available then returns,
   // Otherwise calls the getTrendingTopics, return result and then cache it.
-  console.log('Trends service : ' + cacheKey, st, end);
+  logger.info('Trends service : ' + cacheKey, st, end);
   RedisCacheService.getTrendingTopicsFromRedis(cacheKey).then(
     redisResponse => {
       response.setHeader('Content-Type', 'application/json');
       response.status(200).send(redisResponse);
     },
     redisGetFailure => {
-      console.log('Failed from to get from redis: ' + redisGetFailure);
+      logger.send('Failed from to get from redis: ' + redisGetFailure);
       getTrendingTopics(st, end).then(
         serviceResponse => {
           const jsonObj = JSON.parse(serviceResponse.body);
-          console.log(
+          logger.info(
             'Got a response from python service: ' + JSON.stringify(jsonObj)
           );
           response.status(200).send(jsonObj);
@@ -64,16 +61,16 @@ const getTrends = (request, response, cacheKey, st, end) => {
             JSON.stringify(jsonObj)
           ).then(
             redisResponse => {
-              console.log('Cached successfully in redis. Response');
+              logger.info('Cached successfully in redis. Response');
             },
             redisPutFailure => {
-              console.log('Failed to put in redis.:' + redisPutFailure);
+              logger.error('Failed to put in redis.:' + redisPutFailure);
               // No need to send anything to client. just log it.
             }
           );
         },
         serviceFailure => {
-          console.log('Sending failure to client.');
+          logger.info('Sending failure to client.');
           response.status(500).send();
         }
       );

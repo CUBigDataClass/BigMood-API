@@ -3,6 +3,7 @@ import twitterClient from './clients/twitterClient';
 import util from 'util';
 import request from 'request';
 import serverConfig from './config/ServerConfig';
+import { logger } from './service/LoggerService';
 
 const CronJob = cron.CronJob;
 const locationType = {
@@ -17,7 +18,7 @@ let queue = [];
 const getTrendingLocationsJob = new CronJob('0 */15 * * * *', () => {
   if (queue.length == 0) {
     getCountryWoeids.then(result => {
-      console.log(
+      logger.info(
         'Getting trending hashtags country and city wise',
         result.length
       );
@@ -31,9 +32,12 @@ const getTrendsJob = new CronJob('0 */15 * * * *', () => {
   let trendingLocations = queue.splice(0, 75);
   if (trendingLocations.length) {
     getTrendsByCountry(trendingLocations);
-    console.log(
+    logger.info(
       'Getting trends for cities and countries. Total number of locations: ' +
-        queue.length + '. Getting trends for ' + trendingLocations.length + 'locations.'
+        queue.length +
+        '. Getting trends for ' +
+        trendingLocations.length +
+        'locations.'
     );
   }
 });
@@ -42,7 +46,7 @@ const getTrendsJob = new CronJob('0 */15 * * * *', () => {
 const getCountryWoeids = new Promise((resolve, reject) => {
   twitterClient.get('trends/available', (error, availableWoeids, response) => {
     if (error) {
-      console.log('Error: ' + error);
+      logger.error('Error: ' + error);
       reject(error);
     }
     const availableCountries = availableWoeids.map(loc => {
@@ -84,7 +88,7 @@ const getTrendsByCountry = countryWoeids => {
       twitterClient
         .get('trends/place.json', { id: item.woeid })
         .then(result => getTrendingHashTag(result[0].trends, 1, item))
-        .catch(error => console.log(error))
+        .catch(error => logger.error(error))
     )
   ).then(data => {
     // POST the data to sentiment analyser
@@ -95,10 +99,10 @@ const getTrendsByCountry = countryWoeids => {
     };
     request(options, (err, res, body) => {
       if (err) {
-        console.log(err);
+        logger.error(err);
       }
     });
-    console.log(util.inspect(data, false, null, true /* enable colors */));
+    logger.info(util.inspect(data, false, null, true /* enable colors */));
   });
 };
 

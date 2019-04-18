@@ -1,16 +1,15 @@
 import RedisClient from '../clients/RedisClient';
-import { app, logger } from '../app';
+import { app } from '../app';
+import { logger } from './LoggerService';
 
 const getTrendingTopicsFromRedis = cacheKey => {
-  console.log('RedisCacheService: getTrendingTopicsFromRedis');
-  logger.send('RedisCacheService: getTrendingTopicsFromRedis');
+  logger.info('RedisCacheService: getTrendingTopicsFromRedis');
   return new Promise((resolve, reject) => {
     try {
-      console.log('CALLING : RedisClient.client.get');
-      logger.send('CALLING : RedisClient.client.get');
+      logger.info('CALLING : RedisClient.client.get');
       RedisClient.client.get(cacheKey, function(error, result) {
         if (error || !result) {
-          console.log(
+          logger.error(
             'Failed to get result from redis Error: ' +
               error +
               ' Response:' +
@@ -18,13 +17,13 @@ const getTrendingTopicsFromRedis = cacheKey => {
           );
           reject(error);
         } else {
-          console.log('Result from redis cache' + result);
+          logger.info('Result from redis cache' + result);
           resolve(result);
         }
       });
     } catch (error) {
-      console.debug(
-        'RedisCacheService: getTrendingTopicsFromRedis:some error happened: ' +
+      logger.error(
+        'RedisCacheService: getTrendingTopicsFromRedis: Error occured: ' +
           error
       );
     }
@@ -41,14 +40,14 @@ const cacheTrendsInRedis = (cacheKey, topic) => {
         RedisClient.cacheExpiration,
         (error, result) => {
           if (error) {
-            console.debug('Failed to update redis cache: ' + error);
+            logger.error('Failed to update redis cache: ' + error);
             reject(error);
           }
           resolve(result);
         }
       );
     } catch (error) {
-      console.debug('some error happened: ' + error);
+      logger.error('Error occured: ' + error);
     }
   });
 };

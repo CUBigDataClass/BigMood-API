@@ -24,12 +24,11 @@
     "cors": "^2.8.5",
     "cron": "^1.6.0",
     "express": "^4.16.4",
-    "kafka-node": "^4.1.1",
-    "logstash-client": "^1.1.1",
     "moment": "^2.24.0",
     "redis": "^2.8.0",
     "request": "^2.88.0",
-    "twitter": "^1.7.1"
+    "twitter": "^1.7.1",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "babel-preset-stage-3": "^6.24.1"
