@@ -1,5 +1,6 @@
 import serverConfig from '../config/ServerConfig';
 import Request from 'request';
+import app from '../app'
 
 import RedisCacheService from './RedisCacheService';
 
@@ -19,6 +20,8 @@ const requestHeader = {
   }
 };
 const getTrendingTopics = (start, end) => {
+  console.log('Hello Logstash - Get trending topics');
+  app.logger.send('Hello Logstash - Get trending topics');
   return new Promise((resolve, reject) => {
     requestHeader.qs.startDate = start;
     requestHeader.qs.endDate = end;

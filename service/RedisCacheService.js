@@ -1,10 +1,13 @@
 import RedisClient from '../clients/RedisClient';
+import app from '../app'
 
 const getTrendingTopicsFromRedis = cacheKey => {
   console.log('RedisCacheService: getTrendingTopicsFromRedis');
+  app.logger.send('RedisCacheService: getTrendingTopicsFromRedis');
   return new Promise((resolve, reject) => {
     try {
       console.log('CALLING : RedisClient.client.get');
+      app.logger.send('CALLING : RedisClient.client.get');
       RedisClient.client.get(cacheKey, function(error, result) {
         if (error || !result ) {
           console.log(
