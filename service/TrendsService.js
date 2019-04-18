@@ -48,7 +48,7 @@ const getTrends = (request, response, cacheKey, st, end) => {
       response.status(200).send(redisResponse);
     },
     redisGetFailure => {
-      logger.send('Failed from to get from redis: ' + redisGetFailure);
+      logger.error('Failed from to get from redis: ' + redisGetFailure);
       getTrendingTopics(st, end).then(
         serviceResponse => {
           const jsonObj = JSON.parse(serviceResponse.body);
