@@ -1,5 +1,6 @@
 import redis from 'redis';
 import redisConfig from '../config/RedisConfig';
+import { logger } from '../service/LoggerService';
 
 const redisExpirationTime = redisConfig.expiration_time;
 
@@ -10,11 +11,11 @@ const client = redis.createClient({
 });
 
 client.on('error', err => {
-  console.log('Error: ' + err);
+  logger.error('Error: ' + err);
 });
 
 client.on('connect', () => {
-  console.log('Redis client connected');
+  logger.info('Redis client connected');
 });
 module.exports.client = client;
 module.exports.cacheExpiration = redisExpirationTime;
