@@ -1,5 +1,5 @@
 import RedisClient from '../clients/RedisClient';
-import {app,logger} from '../app';
+import { app, logger } from '../app';
 
 const getTrendingTopicsFromRedis = cacheKey => {
   console.log('RedisCacheService: getTrendingTopicsFromRedis');
@@ -9,7 +9,7 @@ const getTrendingTopicsFromRedis = cacheKey => {
       console.log('CALLING : RedisClient.client.get');
       logger.send('CALLING : RedisClient.client.get');
       RedisClient.client.get(cacheKey, function(error, result) {
-        if (error || !result ) {
+        if (error || !result) {
           console.log(
             'Failed to get result from redis Error: ' +
               error +

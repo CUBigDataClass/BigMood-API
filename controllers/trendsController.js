@@ -1,11 +1,9 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import TrendsService from '../service/TrendsService';
-import {logger} from '../app'
+import { logger } from '../app';
 
 import moment from 'moment';
-
-
 
 const fmt = 'YYYY-MM-DD HH:MM:ss';
 const redis_fmt = 'YYYY-MM-DD-HH';
@@ -19,7 +17,7 @@ router.use(bodyParser.json());
 router.get('/trends', (request, response) => {
   try {
     console.log('Trends controller -restarted');
-    console.log(logger)
+    console.log(logger);
     logger.send('Trends controller');
     const start = request.query.startDate;
     const end = request.query.endDate;

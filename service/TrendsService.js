@@ -1,6 +1,6 @@
 import serverConfig from '../config/ServerConfig';
 import Request from 'request';
-import {app,logger} from '../app';
+import { app, logger } from '../app';
 
 import RedisCacheService from './RedisCacheService';
 
@@ -55,7 +55,9 @@ const getTrends = (request, response, cacheKey, st, end) => {
       getTrendingTopics(st, end).then(
         serviceResponse => {
           const jsonObj = JSON.parse(serviceResponse.body);
-          console.log('Got a response from python service: ' + JSON.stringify(jsonObj));
+          console.log(
+            'Got a response from python service: ' + JSON.stringify(jsonObj)
+          );
           response.status(200).send(jsonObj);
           RedisCacheService.cacheTrendsInRedis(
             cacheKey,
