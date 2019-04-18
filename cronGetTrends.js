@@ -14,7 +14,7 @@ const locationType = {
 let queue = [];
 
 // Run this Cron Job every 15 minutes to get trending locations and update trends when the queue is empty
-const getTrendingLocationsJob = new CronJob('* 0/15 * * * *', () => {
+const getTrendingLocationsJob = new CronJob('0 */15 * * * *', () => {
   if (queue.length == 0) {
     getCountryWoeids.then(result => {
       console.log(
@@ -27,13 +27,13 @@ const getTrendingLocationsJob = new CronJob('* 0/15 * * * *', () => {
 });
 
 // Rate limiting : Job to run every 15 minutes making requests to trends api
-const getTrendsJob = new CronJob('* 0/15 * * * *', () => {
+const getTrendsJob = new CronJob('0 */15 * * * *', () => {
   let trendingLocations = queue.splice(0, 75);
   if (trendingLocations.length) {
     getTrendsByCountry(trendingLocations);
     console.log(
       'Getting trends for cities and countries. Total number of locations: ' +
-        queue.length
+        queue.length + '. Getting trends for ' + trendingLocations.length + 'locations.'
     );
   }
 });
