@@ -5,7 +5,8 @@ import TrendsService from '../service/TrendsService';
 
 import moment from 'moment';
 
-const fmt = 'YYYY-MM-DD HH:MM:SS';
+const fmt = 'YYYY-MM-DD HH:MM:ss';
+const redis_fmt = 'YYYY-MM-DD-HH';
 
 const TRENDS_TOPIC_KEY = 'trendingtopics';
 
@@ -19,20 +20,27 @@ router.get('/trends', (request, response) => {
     const start = request.query.startDate;
     const end = request.query.endDate;
     if (start === undefined && end === undefined) {
-      TrendsService.getTrends(
-        request,
-        response,
-        TRENDS_TOPIC_KEY,
+      var start = moment()
+        .utc()
+        .subtract(1, 'days')
+        .format(fmt);
+      var end = moment()
+        .utc()
+        .format(fmt);
+      console.debug('Start time not defined. Set to : ' + start);
+      console.debug('End time not defined. Set to : ' + end);
+      const REDIS_KEY =
+        TRENDS_TOPIC_KEY +
         moment()
           .utc()
           .subtract(1, 'days')
-          .seconds(0)
-          .format(fmt),
+          .format(redis_fmt) +
+        '-' +
         moment()
           .utc()
-          .seconds(0)
-          .format(fmt)
-      );
+          .format(redis_fmt);
+      console.log('Redis cache key is set to : ' + REDIS_KEY);
+      TrendsService.getTrends(request, response, REDIS_KEY, start, end);
     } else {
       if (start === undefined || end === undefined) {
         response
@@ -40,7 +48,17 @@ router.get('/trends', (request, response) => {
           .send('Invalid request, must provide a start and endtime');
       } else {
         //TODO : Check cache logic here
-        const REDIS_KEY = TRENDS_TOPIC_KEY + start + '-' + end;
+        const REDIS_KEY =
+          TRENDS_TOPIC_KEY +
+          moment()
+            .utc()
+            .subtract(1, 'days')
+            .format(redis_fmt) +
+          '-' +
+          moment()
+            .utc()
+            .format(redis_fmt);
+        console.log('Redis cache key is set to : ' + REDIS_KEY);
         TrendsService.getTrends(request, response, REDIS_KEY, start, end);
       }
     }
