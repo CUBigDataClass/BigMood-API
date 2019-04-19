@@ -6,6 +6,12 @@ import serverConfig from './config/ServerConfig';
 import { logger } from './service/LoggerService';
 
 const CronJob = cron.CronJob;
+const server_uri =
+  'http://' +
+  serverConfig.hostname +
+  ':' +
+  serverConfig.port +
+  serverConfig.endpoint;
 const locationType = {
   1: 'Country',
   2: 'City'
@@ -92,8 +98,11 @@ const getTrendsByCountry = countryWoeids => {
     )
   ).then(data => {
     // POST the data to sentiment analyser
+    logger.info(
+      'Success in getting data from twitter. Sending a POST to ' + server_uri
+    );
     const options = {
-      uri: 'http://' + serverConfig.hostname + serverConfig.endpoint,
+      uri: server_uri,
       json: { trends: data },
       method: 'POST'
     };
