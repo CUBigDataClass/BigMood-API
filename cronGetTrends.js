@@ -72,6 +72,7 @@ const getCountryWoeids = new Promise((resolve, reject) => {
         uniqueWoeids[element.woeid] = true;
       }
     });
+    availableWoeids = availableWoeids.filter(item => item.placeType.name == 'Town')
     const availableCities = availableWoeids.map(loc => {
       const newObj = {
         country: loc.country,
@@ -111,7 +112,8 @@ const getTrendsByCountry = countryWoeids => {
         logger.error(err);
       }
     });
-    logger.info(util.inspect(data, false, null, true /* enable colors */));
+    console.log(util.inspect(data, false, null, true /* enable colors */));
+    logger.info(data)
   });
 };
 
