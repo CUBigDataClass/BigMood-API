@@ -3,11 +3,10 @@ import kafka from 'kafka-node';
 import { builtinModules } from 'module';
 import { logger } from './LoggerService';
 import util from 'util';
-// var kafka = require('kafka-node')
+
 let options = {
   fromOffset: 'latest'
 };
-
 const consumerClient = new kafka.KafkaClient('localhost:2181');
 
 const consumer = new kafka.Consumer(
