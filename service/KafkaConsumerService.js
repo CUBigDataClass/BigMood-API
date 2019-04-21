@@ -8,10 +8,11 @@ let options = {
   fromOffset: 'latest'
 };
 const consumerClient = new kafka.KafkaClient('localhost:2181');
+const kafkaTopic = 'trendSentiment'
 
 const consumer = new kafka.Consumer(
   consumerClient,
-  [{ topic: 'trendSentiment', partition: 0, fromOffset: -1 }],
+  [{ topic: kafkaTopic, partition: 0, fromOffset: -1 }],
   [
     {
       autoCommit: false
