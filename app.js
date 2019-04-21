@@ -13,5 +13,10 @@ app.use((req, res, next) => {
 });
 
 app.use('/bigmoodapi', trendsController);
+app.use('/test', trendsController);
+
+app.get('/health', (req, res) => {
+  res.status(200).send('It is working!');
+});
 
 module.exports.app = app;
