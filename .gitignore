@@ -1,3 +1,6 @@
 node_modules/
-config/
+config/ServerConfig.js
+config/TwitterConfig.js
+config/RedisConfig.js
+config/LogstashConfig.js
 .DS_Store
