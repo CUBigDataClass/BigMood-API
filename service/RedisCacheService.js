@@ -54,10 +54,10 @@ const cacheTrendsInRedis = (cacheKey, topic) => {
 // Create key for a object to be inserted based on locationType
 const createKeyForLocation = value => {
   if (value.locationType == 'Country') {
-    return 'trend' + value.locationType + '-' + value.country;
+    return 'trend-' + value.locationType + '-' + value.country;
   } else if (value.locationType == 'City') {
     return (
-      'trend' + value.locationType + '-' + value.country + '-' + value.country
+      'trend-' + value.locationType + '-' + value.country + '-' + value.city
     );
   }
 };
@@ -65,7 +65,8 @@ const createKeyForLocation = value => {
 // 
 const insertTrendLocationWise = value => {
   return new Promise((resolve, reject) => {
-    key = createKeyForLocation(value);
+    const key = createKeyForLocation(value);
+    value = JSON.stringify(value)
     RedisClient.client.set(key, value, (err, res) => {
       if (err) {
         logger.error('Failed to update the redis cache: ' + err);
@@ -78,7 +79,11 @@ const insertTrendLocationWise = value => {
 
 const insertAllTrendsLocationWise = trends => {
   trends.forEach(element => {
-    insertTrendLocationWise(element);
+    insertTrendLocationWise(element).then(res => {
+      logger.info('Successfully posted new trends from Kafka to Redis', res)
+  }, err => {
+      logger.error('Error while posting new trends from Kafka topic to Redis:', err)
+  });
   });
 };
 
@@ -96,7 +101,7 @@ const getAllKeys = pattern => {
 // Gets alls trends by finding all the keys in redis that start with 'trend'
 const getAllTrends = () => {
   return new Promise((resolve, reject) => {
-    const keys = getAllKeys('trend*');
+    const keys = getAllKeys('trend-*');
     if (!keys) {
       logger.error('No keys returned by Redis with trend in key')
       reject(new Error('No keys returned by Redis with trend in key'))
@@ -116,4 +121,4 @@ const getAllTrends = () => {
   });
 };
 
-module.exports = { cacheTrendsInRedis, getTrendingTopicsFromRedis };
+module.exports = { cacheTrendsInRedis, getTrendingTopicsFromRedis, insertAllTrendsLocationWise,  getAllTrends};
