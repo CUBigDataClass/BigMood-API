@@ -7,7 +7,8 @@ import util from 'util';
 let options = {
   fromOffset: 'latest'
 };
-const consumerClient = new kafka.KafkaClient('localhost:2181');
+let kafkaHost = '35.222.250.101:9092'
+const consumerClient = new kafka.KafkaClient({kafkaHost : kafkaHost});
 const kafkaTopic = 'trendSentiment'
 
 const consumer = new kafka.Consumer(
