@@ -1,15 +1,49 @@
-sudo: false
-
 #use node_js environment
 language: node_js
+
+node_js:
+  - "node"
+
 cache:
   directories:
-    - "node_modules"
-node_js:
-  - "8"
+  - "node_modules"
+  - "$HOME/google-cloud-sdk"
+
+services:
+  - docker
+
+env:
+  global:
+  - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+  - PROJECT_NAME=supple-bank-232805
+  - CLUSTER_NAME=big-data-node-api-cluster
+  - CLOUDSDK_COMPUTE_ZONE=us-central1-c
+
+before_install:
+- echo "before installing"
+- if [ ! -d $HOME/google-cloud-sdk/bin ]; then rm -rf $HOME/google-cloud-sdk; curl https://sdk.cloud.google.com | bash > /dev/null; fi
+- source /home/travis/google-cloud-sdk/path.bash.inc
+- gcloud --quiet version
+- gcloud --quiet components update
+- gcloud --quiet components update beta
+- gcloud --quiet components update kubectl
+- echo $super_secret_password | gpg --passphrase-fd 0 My-project-key.json.gpg
+- echo $super_secret_password | gpg --passphrase-fd 0 ./config/LogstashConfig.js.gpg
+- echo $super_secret_password | gpg --passphrase-fd 0 ./config/RedisConfig.js.gpg
+- echo $super_secret_password | gpg --passphrase-fd 0 ./config/ServerConfig.js.gpg
+- echo $super_secret_password | gpg --passphrase-fd 0 ./config/TwitterConfig.js.gpg
 
 install:
-  - npm install
+- npm install
+- docker
+- echo "success installing."
 
 script:
-  - echo "skip tests"
+- ls -l
+
+deploy:
+  - provider: script
+    script: bash ./deploy-node.sh
+    skip_cleanup: true
+    on:
+      branch: master
