@@ -1,13 +1,12 @@
 import { insertAllTrendsLocationWise } from './RedisCacheService';
 import kafka from 'kafka-node';
-import { builtinModules } from 'module';
 import { logger } from './LoggerService';
-import util from 'util';
+import serverConfig from '../config/ServerConfig';
 
 let options = {
-  fromOffset: 'latest'
+  fromOffset: serverConfig.kafkaFromOffset
 };
-let kafkaHost = '35.222.250.101:9092'
+const kafkaHost = serverConfig.kafkaHostname + ':' + serverConfig.kafkaPort
 const consumerClient = new kafka.KafkaClient({kafkaHost : kafkaHost});
 const kafkaTopic = 'trendSentiment'
 
@@ -18,9 +17,9 @@ const consumer = new kafka.Consumer(
     {
       autoCommit: false
     },
-    (options = {
+    options = {
       fromOffset: 'latest'
-    })
+    }
   ]
 );
 
@@ -28,7 +27,11 @@ const consumeTrendsFromKafka = () => {
   consumer.on('message', message => {
     const trends = JSON.parse(message.value);
     logger.info('Received trends from Kafka topic');
+    console.log(trends)
     insertAllTrendsLocationWise(trends);
   });
+  consumer.on("error", function(err) {
+    logger.error("Error consuming: ", err);
+});
 };
 module.exports = { consumeTrendsFromKafka };
