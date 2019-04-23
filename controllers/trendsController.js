@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import TrendsService from '../service/TrendsService';
+import { getAllTrends } from '../service/RedisCacheService';
 import { logger } from '../service/LoggerService';
 import moment from 'moment';
 
@@ -13,7 +14,7 @@ const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
-router.get('/trends', (request, response) => {
+router.get('/trends_old', (request, response) => {
   try {
     logger.info('Trends controller');
     const start = request.query.startDate;
@@ -64,6 +65,21 @@ router.get('/trends', (request, response) => {
     logger.error('Error calling trends service: ' + error);
     response.status(500).send();
   }
+});
+
+
+// TO DO: If no data in Redis, call Sentiment Analyser endpoint
+router.get('/trends', (request, response) => {
+  getAllTrends().then(
+    result => {
+      response.setHeader('Content-Type', 'application/json');
+      response.status(200).send(result);
+    },
+    err => {
+      logger.error('Error in fetching trends from Redis');
+      response.status(500).send();
+    }
+  );
 });
 
 module.exports = router;
