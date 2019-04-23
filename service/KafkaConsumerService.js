@@ -27,8 +27,11 @@ const consumeTrendsFromKafka = () => {
   consumer.on('message', message => {
     const trends = JSON.parse(message.value);
     logger.info('Received trends from Kafka topic');
-    console.log(trends)
-    insertAllTrendsLocationWise(trends);
+    if(trends){
+      insertAllTrendsLocationWise(trends);
+    }else{
+      logger.info('Something wrong.');
+    }
   });
   consumer.on("error", function(err) {
     logger.error("Error consuming: ", err);
