@@ -94,7 +94,7 @@ const getTrendsByCountry = countryWoeids => {
     countryWoeids.map(item =>
       twitterClient
         .get('trends/place.json', { id: item.woeid })
-        .then(result => getTrendingHashTag(result[0].trends, 1, item))
+        .then(result => getTrendingHashTag(result[0].trends, 5, item))
         .catch(error => logger.error(error))
     )
   ).then(data => {
@@ -125,7 +125,8 @@ const getTrendingHashTag = (trends, numOfTrends, countryWoeid) => {
     const newObj = {
       name: item.name,
       tweetVolume: item.tweet_volume,
-      rank: null
+      rank: null,
+      url: item.url
     };
     return newObj;
   });
