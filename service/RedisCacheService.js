@@ -25,6 +25,7 @@ const getTrendingTopicsFromRedis = cacheKey => {
       logger.error(
         'RedisCacheService: getTrendingTopicsFromRedis: Error occured: ' + error
       );
+      reject(error);
     }
   });
 };
@@ -62,11 +63,11 @@ const createKeyForLocation = value => {
   }
 };
 
-// 
+//
 const insertTrendLocationWise = value => {
   return new Promise((resolve, reject) => {
     const key = createKeyForLocation(value);
-    value = JSON.stringify(value)
+    value = JSON.stringify(value);
     RedisClient.client.set(key, value, (err, res) => {
       if (err) {
         logger.error('Failed to update the redis cache: ' + err);
@@ -79,46 +80,68 @@ const insertTrendLocationWise = value => {
 
 const insertAllTrendsLocationWise = trends => {
   trends.forEach(element => {
-    insertTrendLocationWise(element).then(res => {
-      logger.info('Successfully posted new trends from Kafka to Redis', res)
-  }, err => {
-      logger.error('Error while posting new trends from Kafka topic to Redis:', err)
-  });
+    insertTrendLocationWise(element).then(
+      res => {
+        logger.info('Successfully posted new trends from Kafka to Redis', res);
+      },
+      err => {
+        logger.error(
+          'Error while posting new trends from Kafka topic to Redis:',
+          err
+        );
+      }
+    );
   });
 };
 
 // Find all keys matching a given pattern
 const getAllKeys = pattern => {
-  RedisClient.client.keys(pattern, (err, res) => {
-    if (err) {
-      logger.error('Failed to get keys matching pattern: ' + pattern);
-      reject(err);
-    }
-    resolve(res);
+  return new Promise((resolve, reject) => {
+    RedisClient.client.keys(pattern, (err, res) => {
+      if (err) {
+        logger.error('Failed to get keys matching pattern: ' + err);
+        reject(err);
+      }
+      resolve(res);
+    });
   });
 };
 
 // Gets alls trends by finding all the keys in redis that start with 'trend'
 const getAllTrends = () => {
   return new Promise((resolve, reject) => {
-    const keys = getAllKeys('trend-*');
-    if (!keys) {
-      logger.error('No keys returned by Redis with trend in key')
-      reject(new Error('No keys returned by Redis with trend in key'))
-    }
-    const result = [];
-    keys.forEach(key => {
-      RedisClient.client.get(key, (err, res) => {
-        if (err) {
-          logger.error('Error in getting value for key:' + key);
-        } else {
-          logger.info(res);
-          result.push(res);
+    getAllKeys('trend*').then(
+      keys => {
+        if (!keys) {
+          logger.error(
+            'No keys returned by Redis for trends. No data cached to Redis'
+          );
+          reject(new Error('No keys returned by Redis with trend in key'));
         }
-      });
-      resolve(result);
-    });
+        const result = [];
+        RedisClient.client.mget(keys, (err, res) => {
+          if (err) {
+            logger.error('Error in getting value for key:' + err);
+            reject(err)
+          } else {
+            const trends = [];
+            res.forEach(item => {
+              trends.push(JSON.parse(item));
+            });
+            resolve(trends);
+          }
+        });
+      },
+      err => {
+        reject(err);
+      }
+    );
   });
 };
 
-module.exports = { cacheTrendsInRedis, getTrendingTopicsFromRedis, insertAllTrendsLocationWise,  getAllTrends};
+module.exports = {
+  cacheTrendsInRedis,
+  getTrendingTopicsFromRedis,
+  insertAllTrendsLocationWise,
+  getAllTrends
+};
