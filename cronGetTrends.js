@@ -52,7 +52,7 @@ const getTrendsJob = new CronJob('0 */15 * * * *', () => {
 const getCountryWoeids = new Promise((resolve, reject) => {
   twitterClient.get('trends/available', (error, availableWoeids, response) => {
     if (error) {
-      logger.error('Error: ' + error);
+      logger.error('Error in getting available trends: ' + error);
       reject(error);
     }
     const availableCountries = availableWoeids.map(loc => {
@@ -64,6 +64,8 @@ const getCountryWoeids = new Promise((resolve, reject) => {
       };
       return newObj;
     });
+    // Remove first element as that is global trends
+    availableCountries.splice(0, 1);
     const uniqueWoeids = {};
     const distinctCountries = [];
     availableCountries.forEach(element => {
@@ -84,7 +86,7 @@ const getCountryWoeids = new Promise((resolve, reject) => {
       return newObj;
     });
     let places = [];
-    places = availableCities.concat(distinctCountries);
+    places = distinctCountries.concat(availableCities)
     resolve(places);
   });
 });
@@ -95,25 +97,21 @@ const getTrendsByCountry = countryWoeids => {
       twitterClient
         .get('trends/place.json', { id: item.woeid })
         .then(result => getTrendingHashTag(result[0].trends, 5, item))
-        .catch(error => logger.error(error))
+        .catch(error => logger.error('Error in getting trending hashtag from Twitter' + error))
     )
-  ).then(data => {
+  ).then(result => {
     // POST the data to sentiment analyser
-    logger.info(
-      'Success in getting data from twitter. Sending a POST to ' + server_uri
-    );
     const options = {
       uri: server_uri,
-      json: { trends: data },
+      json: { trends: result },
       method: 'POST'
     };
     request(options, (err, res, body) => {
       if (err) {
-        logger.error(err);
-      }
+        logger.error('Error in posting data to Sentiment Analyser: ' + err);
+      } 
+        logger.info('Successfully posted data to Sentiment Analyser');
     });
-    console.log(util.inspect(data, false, null, true /* enable colors */));
-    logger.info(data)
   });
 };
 

@@ -6,9 +6,9 @@ import serverConfig from '../config/ServerConfig';
 let options = {
   fromOffset: serverConfig.kafkaFromOffset
 };
-const kafkaHost = serverConfig.kafkaHostname + ':' + serverConfig.kafkaPort
-const consumerClient = new kafka.KafkaClient({kafkaHost : kafkaHost});
-const kafkaTopic = 'trendSentiment'
+const kafkaHost = serverConfig.kafkaHostname + ':' + serverConfig.kafkaPort;
+const consumerClient = new kafka.KafkaClient({ kafkaHost: kafkaHost });
+const kafkaTopic = 'trendSentiment';
 
 const consumer = new kafka.Consumer(
   consumerClient,
@@ -26,15 +26,15 @@ const consumer = new kafka.Consumer(
 const consumeTrendsFromKafka = () => {
   consumer.on('message', message => {
     const trends = JSON.parse(message.value);
-    logger.info('Received trends from Kafka topic');
-    if(trends){
+    logger.info('Successfully received trends from Kafka topic');
+    if (trends) {
       insertAllTrendsLocationWise(trends);
-    }else{
-      logger.info('Something wrong.');
+    } else {
+      logger.error('There was a problem while inserting Trends into Redis');
     }
   });
-  consumer.on("error", function(err) {
-    logger.error("Error consuming: ", err);
-});
+  consumer.on('error', (err) => {
+    logger.error('Error occured with Kafka consumer:', err);
+  });
 };
 module.exports = { consumeTrendsFromKafka };
