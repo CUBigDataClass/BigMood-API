@@ -24,12 +24,10 @@ let queue = [];
 const getTrendingLocationsJob = new CronJob('0 */15 * * * *', () => {
   if (queue.length == 0) {
     getCountryWoeids.then(result => {
-      if(result && result.length>0)
-      console.log(
-        'Getting trending hashtags country and city wise'+
+      logger.info(
+        'Getting trending hashtags country and city wise',
         result.length
       );
-      //console.log(result)
       queue = Array.from(result);
     });
   }
@@ -37,10 +35,10 @@ const getTrendingLocationsJob = new CronJob('0 */15 * * * *', () => {
 
 // Rate limiting : Job to run every 15 minutes making requests to trends api
 const getTrendsJob = new CronJob('0 */15 * * * *', () => {
-  let trendingLocations = queue.splice(0, 5);
+  let trendingLocations = queue.splice(0, 75);
   if (trendingLocations.length) {
     getTrendsByCountry(trendingLocations);
-    console.log(
+    logger.info(
       'Getting trends for cities and countries. Total number of locations: ' +
         queue.length +
         '. Getting trends for ' +
@@ -54,7 +52,7 @@ const getTrendsJob = new CronJob('0 */15 * * * *', () => {
 const getCountryWoeids = new Promise((resolve, reject) => {
   twitterClient.get('trends/available', (error, availableWoeids, response) => {
     if (error) {
-      console.log('Error in getting available trends: ' + error);
+      logger.error('Error in getting available trends: ' + error);
       reject(error);
     }
     const availableCountries = availableWoeids.map(loc => {
@@ -103,9 +101,6 @@ const getTrendsByCountry = countryWoeids => {
     )
   ).then(result => {
     // POST the data to sentiment analyser
-    console.log(
-      'Success in getting data from twitter. Sending a POST to ' + server_uri
-    );
     const options = {
       uri: server_uri,
       json: { trends: result },
@@ -138,4 +133,4 @@ const getTrendingHashTag = (trends, numOfTrends, countryWoeid) => {
   return mergedObj;
 };
 
-module.exports = { getTrendsJob, getTrendingLocationsJob }; 
+module.exports = { getTrendsJob, getTrendingLocationsJob };
