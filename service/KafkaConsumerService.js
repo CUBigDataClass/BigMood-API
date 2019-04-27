@@ -81,7 +81,7 @@ const consumeTrendsTweetsFromKafka = () => {
 
 const broadcast = (wss, data) => {
   if (wss.wsserver.clients) {
-    wss.wsserver.clients.forEach(function each(client) {
+    wss.wsserver.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify(data));
       }
