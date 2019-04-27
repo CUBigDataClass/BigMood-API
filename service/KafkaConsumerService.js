@@ -10,21 +10,9 @@ let options = {
 };
 const kafkaHost = serverConfig.kafkaHostname + ':' + serverConfig.kafkaPort;
 const consumerClient = new kafka.KafkaClient({ kafkaHost: kafkaHost });
+const consumerClient2 = new kafka.KafkaClient({ kafkaHost: kafkaHost });
 const kafkaTopic = 'trendSentiment';
 const countryTweetsTopic = 'country_trends_tweets';
-
-const trendTweetsConsumer = new kafka.Consumer(
-  consumerClient,
-  [{ topic: countryTweetsTopic, partition: 0, fromOffset: -1 }],
-  [
-    {
-      autoCommit: false
-    },
-    (options = {
-      fromOffset: 'from-beginning'
-    })
-  ]
-);
 
 const trendSentimentConsumer = new kafka.Consumer(
   consumerClient,
@@ -49,20 +37,23 @@ const consumeTrendsFromKafka = () => {
       logger.error('There was a problem while inserting Trends into Redis');
     }
   });
-
-  consumer.on('error', err => {
+  trendSentimentConsumer.on('error', err => {
     logger.error('Error occured with Kafka consumer:', err);
-    logger.info('Received trends from Kafka topic');
-    if (trends) {
-      insertAllTrendsLocationWise(trends);
-    } else {
-      logger.info('Something wrong.');
-    }
-  });
-  trendSentimentConsumer.on('error', function(err) {
-    logger.error('Error consuming: ', err);
   });
 };
+
+const trendTweetsConsumer = new kafka.Consumer(
+  consumerClient2,
+  [{ topic: countryTweetsTopic, partition: 0, fromOffset: -1 }],
+  [
+    {
+      autoCommit: false
+    },
+    (options = {
+      fromOffset: 'latest'
+    })
+  ]
+);
 
 const consumeTrendsTweetsFromKafka = () => {
   trendTweetsConsumer.on('message', message => {
@@ -70,14 +61,20 @@ const consumeTrendsTweetsFromKafka = () => {
     logger.info('[Country] Received trending tweets from Kafka topic');
     if (trends) {
       logger.info('[Country] Broadcasting to all connected clients.');
-      trends.forEach(trend => {
-        broadcast(wsserver, trend);
-      });
+      try {
+        trends.forEach(trend => {
+          broadcast(wsserver, trend);
+        });
+      } catch (error) {
+        logger.error(
+          'Some error happened in broadcasing over the websocket:' + error
+        );
+      }
     } else {
       logger.info('[Country]- Something wrong.');
     }
   });
-  trendSentimentConsumer.on('error', function(err) {
+  trendTweetsConsumer.on('error', function(err) {
     logger.error('[Country]- Error consuming: ', err);
   });
 };
@@ -89,6 +86,8 @@ const broadcast = (wss, data) => {
         client.send(JSON.stringify(data));
       }
     });
+  } else {
+    logger.info('No connected clients.');
   }
 };
 
