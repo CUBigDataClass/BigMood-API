@@ -49,8 +49,8 @@ const consumeTrendsFromKafka = () => {
       logger.error('There was a problem while inserting Trends into Redis');
     }
   });
-  
-  consumer.on('error', (err) => {
+
+  consumer.on('error', err => {
     logger.error('Error occured with Kafka consumer:', err);
     logger.info('Received trends from Kafka topic');
     if (trends) {
@@ -69,7 +69,7 @@ const consumeTrendsTweetsFromKafka = () => {
     const trends = JSON.parse(message.value);
     logger.info('[Country] Received trending tweets from Kafka topic');
     if (trends) {
-      //console.log(JSON.stringify(wsserver));
+      logger.info('[Country] Broadcasting to all connected clients.');
       trends.forEach(trend => {
         broadcast(wsserver, trend);
       });
@@ -83,9 +83,7 @@ const consumeTrendsTweetsFromKafka = () => {
 };
 
 const broadcast = (wss, data) => {
-  //console.log("broadcastmethod called" + JSON.stringify(wss));
   if (wss.wsserver.clients) {
-    //console.log("clients called");
     wss.wsserver.clients.forEach(function each(client) {
       if (client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify(data));

@@ -31,9 +31,7 @@ try {
 const wss = new WebSocket.Server({ port: 34234 });
 wss.on('connection', function(ws) {
   ws.send('Connected to server');
-  console.log('connected to client: ' + JSON.stringify(ws._socket.address()));
+  logger.log('connected to client: ' + JSON.stringify(ws._socket.address()));
 });
-
-// Broadcast to all.
 
 module.exports.wsserver = wss;
