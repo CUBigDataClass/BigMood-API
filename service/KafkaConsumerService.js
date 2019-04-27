@@ -74,8 +74,8 @@ const consumeTrendsTweetsFromKafka = () => {
       logger.info('[Country]- Something wrong.');
     }
   });
-  trendTweetsConsumer.on('error', function(err) {
-    logger.error('[Country]- Error consuming: ', err);
+  trendTweetsConsumer.on('error', err => {
+    logger.error('[Country]- Error consuming: '+ err);
   });
 };
 
