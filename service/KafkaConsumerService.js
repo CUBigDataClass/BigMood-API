@@ -38,7 +38,7 @@ const consumeTrendsFromKafka = () => {
     }
   });
   trendSentimentConsumer.on('error', err => {
-    logger.error('Error occured with Kafka consumer:', err);
+    logger.error('Error occured with Kafka consumer:'+ err);
   });
 };
 
