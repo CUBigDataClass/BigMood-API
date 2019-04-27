@@ -1,7 +1,11 @@
 import { app } from './app';
 import { getTrendingLocationsJob, getTrendsJob } from './cronGetTrends';
 import { logger } from './service/LoggerService';
-import {consumeTrendsFromKafka} from './service/KafkaConsumerService'
+import {
+  consumeTrendsFromKafka,
+  consumeTrendsTweetsFromKafka
+} from './service/KafkaConsumerService';
+import WebSocket from 'ws';
 
 const port = process.env.PORT || 3000;
 
@@ -10,10 +14,11 @@ const server = app.listen(port, '0.0.0.0', function() {
 });
 
 try {
-  logger.info("Starting kafka consumer")
+  logger.info('Starting kafka consumer');
   consumeTrendsFromKafka();
-} catch(error) {
-  logger.error('Failed to consume messages from kafka' + error)
+  consumeTrendsTweetsFromKafka();
+} catch (error) {
+  logger.error('Failed to consume messages from kafka' + error);
 }
 
 try {
@@ -22,3 +27,13 @@ try {
 } catch (error) {
   logger.error('Failed to start cron job. Error: ' + error);
 }
+
+const wss = new WebSocket.Server({ port: 34234 });
+wss.on('connection', function(ws) {
+  ws.send('Connected to server');
+  console.log('connected to client: ' + JSON.stringify(ws._socket.address()));
+});
+
+// Broadcast to all.
+
+module.exports.wsserver = wss;

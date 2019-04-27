@@ -29,7 +29,8 @@
     "redis": "^2.8.0",
     "request": "^2.88.0",
     "twitter": "^1.7.1",
-    "winston": "^3.2.1"
+    "winston": "^3.2.1",
+    "ws": "^6.2.1"
   },
   "devDependencies": {
     "babel-preset-stage-3": "^6.24.1"
