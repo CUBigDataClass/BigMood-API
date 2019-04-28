@@ -31,7 +31,7 @@ kubectl expose deployment big-data-node-api-cluster --type LoadBalancer --port 3
 
 10. Run the 'kubectl get service' command to get the status of your deployment.  
 Wait till the external IP address populates. Now use the external IP address with the port information to check the status of your service.  
-Example: 104.198.251.99:3000/bigmoodapi/trends/ . 
+Example: ---.---.---.---:3000/bigmoodapi/trends/ . 
 
 11. Redeploying a new version.  
 
