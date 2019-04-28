@@ -9,7 +9,7 @@ COPY . /app
 
 
 ENV PORT 3000
-EXPOSE 3000/tcp
+EXPOSE 3000/tcp 34234/tcp
 
 CMD ["npm", "run", "start" ]
 
