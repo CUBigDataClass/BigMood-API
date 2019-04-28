@@ -4,6 +4,7 @@ import util from 'util';
 import request from 'request';
 import serverConfig from './config/ServerConfig';
 import { logger } from './service/LoggerService';
+import RedisClient from './clients/RedisClient';
 
 const CronJob = cron.CronJob;
 const server_uri =
@@ -35,7 +36,7 @@ const getTrendingLocationsJob = new CronJob('0 */15 * * * *', () => {
 
 // Rate limiting : Job to run every 15 minutes making requests to trends api
 const getTrendsJob = new CronJob('0 */15 * * * *', () => {
-  let trendingLocations = queue.splice(0, 75);
+  let trendingLocations = queue.splice(0, 70);
   if (trendingLocations.length) {
     getTrendsByCountry(trendingLocations);
     logger.info(
@@ -46,6 +47,28 @@ const getTrendsJob = new CronJob('0 */15 * * * *', () => {
         'locations.'
     );
   }
+});
+
+const getGlobalTrendsJob = new CronJob('0 */15 * * * *', () => {
+  twitterClient.get(
+    'trends/place.json',
+    { id: 1 },
+    (error, trends, response) => {
+      if (error) {
+        logger.error('Error while getting global trends: ', error);
+      } else {
+        const globalTrends = getTrendingHashTag(trends[0].trends, 5, 1);
+        const value = JSON.stringify(globalTrends);
+        RedisClient.client.set('global-trend', value, (err, res) => {
+          if (err) {
+            logger.error(
+              'Failed to update redis cache with global trends: ' + err
+            );
+          }
+        });
+      }
+    }
+  );
 });
 
 // Returns object with this format [{ country: 'United States', woeid: 23424977, countryCode: 'US' }]
@@ -74,7 +97,9 @@ const getCountryWoeids = new Promise((resolve, reject) => {
         uniqueWoeids[element.woeid] = true;
       }
     });
-    availableWoeids = availableWoeids.filter(item => item.placeType.name == 'Town')
+    availableWoeids = availableWoeids.filter(
+      item => item.placeType.name == 'Town'
+    );
     const availableCities = availableWoeids.map(loc => {
       const newObj = {
         country: loc.country,
@@ -86,7 +111,7 @@ const getCountryWoeids = new Promise((resolve, reject) => {
       return newObj;
     });
     let places = [];
-    places = distinctCountries.concat(availableCities)
+    places = distinctCountries.concat(availableCities);
     resolve(places);
   });
 });
@@ -97,7 +122,9 @@ const getTrendsByCountry = countryWoeids => {
       twitterClient
         .get('trends/place.json', { id: item.woeid })
         .then(result => getTrendingHashTag(result[0].trends, 5, item))
-        .catch(error => logger.error('Error in getting trending hashtag from Twitter' + error))
+        .catch(error =>
+          logger.error('Error in getting trending hashtag from Twitter' + error)
+        )
     )
   ).then(result => {
     // POST the data to sentiment analyser
@@ -109,8 +136,8 @@ const getTrendsByCountry = countryWoeids => {
     request(options, (err, res, body) => {
       if (err) {
         logger.error('Error in posting data to Sentiment Analyser: ' + err);
-      } 
-        logger.info('Successfully posted data to Sentiment Analyser');
+      }
+      logger.info('Successfully posted data to Sentiment Analyser');
     });
   });
 };
@@ -133,4 +160,4 @@ const getTrendingHashTag = (trends, numOfTrends, countryWoeid) => {
   return mergedObj;
 };
 
-module.exports = { getTrendsJob, getTrendingLocationsJob };
+module.exports = { getTrendsJob, getTrendingLocationsJob, getGlobalTrendsJob };
