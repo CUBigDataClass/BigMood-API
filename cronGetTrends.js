@@ -59,7 +59,6 @@ const getGlobalTrendsJob = new CronJob('0 */15 * * * *', () => {
       } else {
         const globalTrends = getTrendingHashTag(trends[0].trends, 5, 1);
         const value = JSON.stringify(globalTrends);
-        console.log('Sending', value);
         RedisClient.client.set('global-trend', value, (err, res) => {
           if (err) {
             logger.error(
