@@ -2,4 +2,4 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'build', '-t', 'gcr.io/supple-bank-232805/big-data-node-api:latest', '.' ]
 images:
-- 'gcr.io/supple-bank-232805/big-data-node-api'
+- 'gcr.io/supple-bank-232805/big-data-node-api:latest'

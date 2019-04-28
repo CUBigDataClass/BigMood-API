@@ -33,8 +33,7 @@ gcloud container clusters create big-data-node-api-cluster --num-nodes 1
 kubectl apply -f bigmoodapi-deploy.yaml  
 3. Create a loadbalancer service to expose the cluster on the web.  
 kubectl apply -f bigmoodapi-loadbalancer-service.yaml  
-
-10. Run the 'kubectl get service' command to get the status of your deployment.  Wait till the external IP address populates. Now use the external IP address with the port information to check the status of your service.  
+4. Run the 'kubectl get service' command to get the status of your deployment.  Wait till the external IP address populates. Now use the external IP address with the port information to check the status of your service.  
 You will see an external IP Address of the load balancer and PORT mappings. -> Ex: 3000:32031/TCP,34234:30455/TCP  (Don't worry about these mapping)  
 
 Test the emdpoints:
