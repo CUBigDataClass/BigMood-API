@@ -1,7 +1,7 @@
 import { app } from './app';
-import { getTrendingLocationsJob, getTrendsJob } from './cronGetTrends';
+import { getTrendingLocationsJob, getTrendsJob, getGlobalTrendsJob } from './cronGetTrends';
 import { logger } from './service/LoggerService';
-import {consumeTrendsFromKafka} from './service/KafkaConsumerService'
+import { consumeTrendsFromKafka } from './service/KafkaConsumerService';
 
 const port = process.env.PORT || 3000;
 
@@ -19,6 +19,7 @@ try {
 try {
   getTrendingLocationsJob.start();
   getTrendsJob.start();
+  getGlobalTrendsJob.start();
 } catch (error) {
   logger.error('Failed to start cron job. Error: ' + error);
 }

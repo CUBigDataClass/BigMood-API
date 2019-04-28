@@ -17,7 +17,6 @@ const getTrendingTopicsFromRedis = cacheKey => {
           );
           reject(error);
         } else {
-          logger.info('Result from redis cache' + result);
           resolve(result);
         }
       });
@@ -82,7 +81,7 @@ const insertAllTrendsLocationWise = trends => {
   trends.forEach(element => {
     insertTrendLocationWise(element).then(
       res => {
-        logger.info('Successfully posted new trends from Kafka to Redis', res);
+        
       },
       err => {
         logger.error(
@@ -122,7 +121,7 @@ const getAllTrends = () => {
         RedisClient.client.mget(keys, (err, res) => {
           if (err) {
             logger.error('Error in getting value for key:' + err);
-            reject(err)
+            reject(err);
           } else {
             const trends = [];
             res.forEach(item => {
@@ -139,9 +138,33 @@ const getAllTrends = () => {
   });
 };
 
+const getGlobalTrends = () => {
+  return new Promise((resolve, reject) => {
+    RedisClient.client.get('global-trend', (err, res) => {
+      if (err) {
+        logger.error('Error in getting global trends from Redis');
+        reject(err);
+      } else {
+        const trends = [];
+        if (res) {
+          res = JSON.parse(res);
+          resolve(res['twitterTrendInfo']);
+        } else {
+          reject(
+            new Error(
+              'Result returned from Redis has no trends for global trends'
+            )
+          );
+        }
+      }
+    });
+  });
+};
+
 module.exports = {
   cacheTrendsInRedis,
   getTrendingTopicsFromRedis,
   insertAllTrendsLocationWise,
-  getAllTrends
+  getAllTrends,
+  getGlobalTrends
 };
